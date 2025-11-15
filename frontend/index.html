@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ola Maps Test</title>
+
+    <!-- Load Ola Maps Web SDK -->
+    <script src="https://www.unpkg.com/olamaps-web-sdk@latest/dist/olamaps-web-sdk.umd.js"></script>
+
+    <style>
+        /* Make map full screen */
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+
+    <script>
+        // Put your API key in one place and use it for both the SDK and the style URL.
+        const API_KEY = "DRjn7DUktWIoPYoromjxsMs7eFbOJaIVHzg96eWG";
+
+        // 1. Initialize OlaMaps with your API key
+        const olaMaps = new OlaMaps({
+            apiKey: API_KEY
+        });
+
+        // 2. Style JSON URL (default style provided by Ola Maps) — include the API key
+        const styleURL = `https://api.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=${API_KEY}`;
+
+        // 3. Render the map
+        const map = olaMaps.init({
+            style: styleURL,
+            container: "map",
+            center: [78.4867, 17.3850], // Hyderabad center
+            zoom: 12
+        });
+    </script>
+
+</body>
+</html>
