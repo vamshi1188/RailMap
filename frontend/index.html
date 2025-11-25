@@ -3,43 +3,121 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ola Maps Test</title>
+    <title>Ola Maps Train Marker</title>
 
-    <!-- Load Ola Maps Web SDK -->
     <script src="https://www.unpkg.com/olamaps-web-sdk@latest/dist/olamaps-web-sdk.umd.js"></script>
 
     <style>
-        /* Make map full screen */
+        body { margin: 0; font-family: Arial, sans-serif; }
         #map {
             width: 100vw;
-            height: 100vh;
+            height: 90vh; /* Map takes up 90% of viewport height */
+        }
+        #controls {
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        input { padding: 8px; width: 140px; border: 1px solid #ccc; border-radius: 4px; }
+        button { 
+            padding: 8px 15px; 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        button:hover { background-color: #0056b3; }
+        /* Style for the custom train marker */
+        .train-icon {
+            width: 40px;
+            height: 40px;
+            /* Using a simple, accessible URL for demonstration */
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Train_icon.svg/120px-Train_icon.svg.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
         }
     </style>
 </head>
 
 <body>
 
+    <div id="controls">
+        <input id="lat" type="number" step="0.00001" placeholder="Latitude" value="19.0760">
+        <input id="lng" type="number" step="0.00001" placeholder="Longitude" value="72.8777">
+        <button onclick="placeTrain()">Place Train</button>
+    </div>
+
     <div id="map"></div>
 
     <script>
-        // Put your API key in one place and use it for both the SDK and the style URL.
-        const API_KEY = "DRjn7DUktWIoPYoromjxsMs7eFbOJaIVHzg96eWG";
+        // *** IMPORTANT: REPLACE WITH YOUR ACTUAL API KEY ***
+        const API_KEY = "DRjn7DUktWIoPYoromjxsMs7eFbOJaIVHzg96eWG"; 
 
-        // 1. Initialize OlaMaps with your API key
+        // if (API_KEY === "YOUR_API_KEY_HERE") {
+        //     console.error("Please replace 'YOUR_API_KEY_HERE' with your actual Ola Maps API Key.");
+        //     // Optionally, stop execution or show an alert if the key is not set.
+        // }
+
         const olaMaps = new OlaMaps({
             apiKey: API_KEY
         });
 
-        // 2. Style JSON URL (default style provided by Ola Maps) — include the API key
-        const styleURL = `https://api.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=${API_KEY}`;
+        const styleURL =
+            `https://api.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=${API_KEY}`;
 
-        // 3. Render the map
+        // Initialize the map
         const map = olaMaps.init({
             style: styleURL,
             container: "map",
-            center: [78.4867, 17.3850], // Hyderabad center
-            zoom: 12
+            center: [72.8777, 19.0760], // Default: Mumbai (lng, lat)
+            zoom: 11
         });
+
+        let trainMarker = null;
+
+        /**
+         * Parses the coordinates from the input fields and places the train marker on the map.
+         */
+        function placeTrain() {
+            const latInput = document.getElementById("lat").value;
+            const lngInput = document.getElementById("lng").value;
+            
+            const lat = parseFloat(latInput);
+            const lng = parseFloat(lngInput);
+
+            if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                alert("Enter valid latitude (-90 to 90) and longitude (-180 to 180).");
+                return;
+            }
+
+            // Ola Maps (and MapLibre GL JS it's based on) uses [lng, lat] for coordinates
+            const coord = [lng, lat]; 
+
+            // 1. Center map on new location
+            map.setCenter(coord);
+            map.setZoom(15);
+
+            // 2. Remove existing marker if it exists
+            if (trainMarker) {
+                trainMarker.remove();
+            }
+
+            // 3. Create the custom marker element
+            const el = document.createElement("div");
+            el.className = "train-icon"; // Use CSS class for better styling management
+
+            // 4. Create and add the new marker
+            trainMarker = new olaMaps.Marker({ element: el })
+                .setLngLat(coord)
+                .addTo(map);
+        }
     </script>
 
 </body>
