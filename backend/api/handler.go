@@ -1,8 +1,12 @@
 package api
 
 import (
+	// "bufio"
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	// "os"
 )
 
 func GetStation(w http.ResponseWriter, r *http.Request) {
@@ -49,4 +53,33 @@ func GetTrainLiveLocation(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(resp.StatusCode)
 
 	io.Copy(w, resp.Body)
+}
+
+// train live cordinates
+
+func GetLATandLONG(w http.ResponseWriter, r *http.Request) {
+	url := "https://railradar.in/api/v1/trains/live-map"
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer res.Body.Close()
+
+	body, _ := io.ReadAll(res.Body)
+
+	var result LiveMapResponse
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	json.NewEncoder(w).Encode(result)
 }
