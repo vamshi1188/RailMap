@@ -3,7 +3,6 @@ package main
 import (
 	"RailMap/backend/api"
 	"net/http"
-	// "RailMap/pkg"
 )
 
 func main() {
@@ -16,5 +15,9 @@ func main() {
 
 	http.HandleFunc("/station", api.GetStation)
 	http.HandleFunc("/train", api.GetTrainLiveLocation)
+	http.HandleFunc("/livemap", api.GetLATandLONG)
 	http.ListenAndServe(":8080", nil)
+
+	// api.GetLATandLONG()
+
 }
