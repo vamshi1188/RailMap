@@ -11,7 +11,7 @@
         body { margin: 0; font-family: Arial, sans-serif; }
         #map {
             width: 100vw;
-            height: 90vh; /* Map takes up 90% of viewport height */
+            height: 90vh;
         }
         #controls {
             padding: 10px;
@@ -32,16 +32,15 @@
             font-weight: bold;
         }
         button:hover { background-color: #0056b3; }
-        /* Style for the custom train marker */
+
+        /* Custom marker */
         .train-icon {
             width: 40px;
             height: 40px;
-            /* Using a simple, accessible URL for demonstration */
-            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Train_icon.svg/120px-Train_icon.svg.png');
+            background-image: url('https://img.icons8.com/emoji/48/train-emoji.png');
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center;
-            cursor: pointer;
         }
     </style>
 </head>
@@ -57,64 +56,51 @@
     <div id="map"></div>
 
     <script>
-        // *** IMPORTANT: REPLACE WITH YOUR ACTUAL API KEY ***
         const API_KEY = "DRjn7DUktWIoPYoromjxsMs7eFbOJaIVHzg96eWG"; 
 
-        // if (API_KEY === "YOUR_API_KEY_HERE") {
-        //     console.error("Please replace 'YOUR_API_KEY_HERE' with your actual Ola Maps API Key.");
-        //     // Optionally, stop execution or show an alert if the key is not set.
-        // }
 
-        const olaMaps = new OlaMaps({
-            apiKey: API_KEY
-        });
+        const olaMaps = new OlaMaps({ apiKey: API_KEY });
 
         const styleURL =
             `https://api.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=${API_KEY}`;
 
-        // Initialize the map
         const map = olaMaps.init({
             style: styleURL,
             container: "map",
-            center: [72.8777, 19.0760], // Default: Mumbai (lng, lat)
+            center: [72.8777, 19.0760],
             zoom: 11
         });
 
         let trainMarker = null;
 
-        /**
-         * Parses the coordinates from the input fields and places the train marker on the map.
-         */
         function placeTrain() {
-            const latInput = document.getElementById("lat").value;
-            const lngInput = document.getElementById("lng").value;
-            
-            const lat = parseFloat(latInput);
-            const lng = parseFloat(lngInput);
+            const lat = parseFloat(document.getElementById("lat").value);
+            const lng = parseFloat(document.getElementById("lng").value);
 
-            if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-                alert("Enter valid latitude (-90 to 90) and longitude (-180 to 180).");
+            if (isNaN(lat) || isNaN(lng)) {
+                alert("Enter valid lat/lng");
                 return;
             }
 
-            // Ola Maps (and MapLibre GL JS it's based on) uses [lng, lat] for coordinates
-            const coord = [lng, lat]; 
+            const coord = [lng, lat];
 
-            // 1. Center map on new location
             map.setCenter(coord);
             map.setZoom(15);
 
-            // 2. Remove existing marker if it exists
-            if (trainMarker) {
-                trainMarker.remove();
-            }
+            // Remove old marker
+            if (trainMarker) trainMarker.remove();
 
-            // 3. Create the custom marker element
-            const el = document.createElement("div");
-            el.className = "train-icon"; // Use CSS class for better styling management
+            // Create custom marker element
+            const customMarker = document.createElement("div");
+            customMarker.classList.add("train-icon");
 
-            // 4. Create and add the new marker
-            trainMarker = new olaMaps.Marker({ element: el })
+            // Add marker using documented API
+            trainMarker = olaMaps
+                .addMarker({
+                    element: customMarker,
+                    anchor: "center",
+                    offset: [0, 0]
+                })
                 .setLngLat(coord)
                 .addTo(map);
         }
@@ -122,3 +108,4 @@
 
 </body>
 </html>
+"DRjn7DUktWIoPYoromjxsMs7eFbOJaIVHzg96eWG"; 
