@@ -33,7 +33,6 @@
         }
         button:hover { background-color: #0056b3; }
 
-        /* Custom marker */
         .train-icon {
             width: 40px;
             height: 40px;
@@ -56,22 +55,39 @@
     <div id="map"></div>
 
     <script>
-        const API_KEY = "DRjn7DUktWIoPYoromjxsMs7eFbOJaIVHzg96eWG"; 
-
-
-        const olaMaps = new OlaMaps({ apiKey: API_KEY });
-
-        const styleURL =
-            `https://api.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=${API_KEY}`;
-
-        const map = olaMaps.init({
-            style: styleURL,
-            container: "map",
-            center: [72.8777, 19.0760],
-            zoom: 11
-        });
-
+        let API_KEY = "";
+        let map;
+        let olaMaps;
         let trainMarker = null;
+
+        // 🔥 FIRST: Fetch secure API key from backend
+        async function loadAPIKey() {
+            try {
+                const res = await fetch("/key");
+                const data = await res.json();
+                API_KEY = data.api_key;
+
+                initMap();  // load map AFTER key arrives
+            } catch (err) {
+                alert("Failed to load API key from backend");
+                console.error(err);
+            }
+        }
+
+        // 🔥 Initialize map only after we have the key
+        function initMap() {
+            olaMaps = new OlaMaps({ apiKey: API_KEY });
+
+            const styleURL =
+                `https://api.olamaps.io/tiles/vector/v1/styles/default-light-standard/style.json?api_key=${API_KEY}`;
+
+            map = olaMaps.init({
+                style: styleURL,
+                container: "map",
+                center: [72.8777, 19.0760],
+                zoom: 11
+            });
+        }
 
         function placeTrain() {
             const lat = parseFloat(document.getElementById("lat").value);
@@ -87,14 +103,11 @@
             map.setCenter(coord);
             map.setZoom(15);
 
-            // Remove old marker
             if (trainMarker) trainMarker.remove();
 
-            // Create custom marker element
             const customMarker = document.createElement("div");
             customMarker.classList.add("train-icon");
 
-            // Add marker using documented API
             trainMarker = olaMaps
                 .addMarker({
                     element: customMarker,
@@ -104,8 +117,10 @@
                 .setLngLat(coord)
                 .addTo(map);
         }
+
+        // 🔥 Start the process
+        loadAPIKey();
     </script>
 
 </body>
 </html>
-"DRjn7DUktWIoPYoromjxsMs7eFbOJaIVHzg96eWG"; 
